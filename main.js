@@ -22,6 +22,13 @@ let list = [
 ]
 
 const renderTaskList = (list) => {
+  if (list.length === 0) {
+    return `<li class="list-group-item d-flex justify-content-between align-items-center">
+      Vous n'avez pas encore de tâche.
+    </li>
+    `
+  }
+
   let html = ``
   for (let index = 0; index < list.length; index++) {
     const task = list[index];
@@ -51,7 +58,14 @@ app.innerHTML = `
 
 const ajouterTache = () => {
   const input = document.getElementById("input-tache")
-  const lastUsedId = list[list.length-1].id
+
+  let lastUsedId = 0;
+  if (list.length > 0)
+  {
+     lastUsedId = list[list.length-1].id
+
+  }
+
   const nouvelleTache = {
     id: lastUsedId + 1,
     name: input.value,
