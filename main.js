@@ -1,41 +1,17 @@
 import "/style.scss";
-import { nav } from "./components/nav";
+import "remixicon/fonts/remixicon.css";
 
 // Import all of Bootstrap's JS
 import * as bootstrap from "bootstrap";
-import { taskItem } from "./components/taskItem";
+
+import { nav } from "./components/nav";
 import { modal } from "./components/modal";
+import { storage } from "./storage";
+import { taskList } from "./components/taskList";
 
 const app = document.getElementById("app");
 
-let list = [
-  {
-    id: 1,
-    name: "Acheter nourriture pour le chat",
-    is_done: false,
-  },
-  {
-    id: 2,
-    name: "Faire le devoir pour le cours de js",
-    is_done: true,
-  },
-]
-
-const renderTaskList = (list) => {
-  if (list.length === 0) {
-    return `<li class="list-group-item d-flex justify-content-between align-items-center">
-      Vous n'avez pas encore de tâche.
-    </li>
-    `
-  }
-
-  let html = ``
-  for (let index = 0; index < list.length; index++) {
-    const task = list[index];
-    html += taskItem(task)
-  }
-  return html
-}
+let list = storage.getTasks();
 
 app.innerHTML = `
     ${nav}
@@ -45,59 +21,67 @@ app.innerHTML = `
         <label for="input-tache" class="form-label">Nom de la tâche</label>
         <input type="text" class="form-control" id="input-tache" placeholder="Une tâche à faire...">
       </div>
-      <button class="btn btn-primary mb-4" id="ajouter-tache-btn">Ajouter</button>
+      <button class="btn btn-primary mb-4" id="ajouter-tache-btn"><i class="ri-add-line"></i></button>
       <h2>Liste des tâches</h2>
       <ul class="list-group" id="task-list">
-        ${renderTaskList(list)}
+        ${taskList(list)}
       </ul>
     </div>
     ${modal}
   `;
 
-
-
+// Ajout d'une tache
 const ajouterTache = () => {
-  const input = document.getElementById("input-tache")
+  const input = document.getElementById("input-tache");
 
   let lastUsedId = 0;
-  if (list.length > 0)
-  {
-     lastUsedId = list[list.length-1].id
-
+  if (list.length > 0) {
+    lastUsedId = list[list.length - 1].id;
   }
 
   const nouvelleTache = {
     id: lastUsedId + 1,
     name: input.value,
     is_done: false,
-  }
+  };
 
-  list.push(nouvelleTache)
+  list = storage.addTask(nouvelleTache);
 
-  document.getElementById("task-list").innerHTML = renderTaskList(list)
+  document.getElementById("task-list").innerHTML = taskList(list);
 
-  input.value = ""
-}
+  input.value = "";
+};
 
-const btnAjouter = document.getElementById("ajouter-tache-btn")
+document
+  .getElementById("ajouter-tache-btn")
+  .addEventListener("click", ajouterTache);
 
-btnAjouter.addEventListener("click", ajouterTache)
-
-
+// Suppression d'une tache
 let selectedTaskIdToDelete = null;
-const deleteModal = document.getElementById('deleteModal')
-deleteModal.addEventListener('show.bs.modal', event => {
-  const button = event.relatedTarget
+const deleteModal = document.getElementById("deleteModal");
+deleteModal.addEventListener("show.bs.modal", (event) => {
+  const button = event.relatedTarget;
 
-  selectedTaskIdToDelete = parseInt(button.getAttribute('data-bs-task-id'))
-})
+  selectedTaskIdToDelete = parseInt(button.getAttribute("data-bs-task-id"));
+});
 
 const deleteTask = () => {
-  list = list.filter((task) => {
-    return task.id !== selectedTaskIdToDelete
-  })
+  list = storage.deleteTask(selectedTaskIdToDelete);
 
-  document.getElementById("task-list").innerHTML = renderTaskList(list)
+  document.getElementById("task-list").innerHTML = taskList(list);
+};
+
+document
+  .getElementById("delete-task-btn")
+  .addEventListener("click", deleteTask);
+
+// Gestion des checkbox pour marquer une tache comme faite
+const checkboxes = document.querySelectorAll("input[type='checkbox']");
+
+for (let index = 0; index < checkboxes.length; index++) {
+  const checkbox = checkboxes[index];
+  checkbox.addEventListener("change", (e) => {
+    const id = e.currentTarget.value;
+    storage.toggleDone(parseInt(id));
+  });
 }
-
-document.getElementById("delete-task-btn").addEventListener("click", deleteTask)

@@ -11,9 +11,9 @@ export const modal = `
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                <button type="button" class="btn btn-danger" id="delete-task-btn" data-bs-dismiss="modal">Supprimer</button>
+                <button type="button" class="btn btn-danger" id="delete-task-btn" data-bs-dismiss="modal"><i class="ri-delete-bin-line"></i> Supprimer</button>
             </div>
         </div>
     </div>
 </div>
-`
+`;
